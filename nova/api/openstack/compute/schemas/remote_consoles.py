@@ -196,6 +196,10 @@ get_rdp_console_response = {
     'additionalProperties': False,
 }
 
+# NOTE(stephenfin): This schema is intentionally empty since the action has
+# been removed
+get_rdp_console_response = {}
+
 get_serial_console_response = {
     'type': 'object',
     'properties': {
