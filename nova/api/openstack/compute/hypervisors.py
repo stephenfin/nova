@@ -366,7 +366,7 @@ class HypervisorsController(wsgi.Controller):
             ),
         }
 
-    @wsgi.Controller.api_version('2.1', '2.87')
+    @wsgi.api_version('2.1', '2.87')
     @wsgi.expected_errors((400, 404, 501))
     @validation.query_schema(schema.uptime_query)
     def uptime(self, req, id):
@@ -419,7 +419,7 @@ class HypervisorsController(wsgi.Controller):
 
         return {'hypervisor': hypervisor}
 
-    @wsgi.Controller.api_version('2.1', '2.52')
+    @wsgi.api_version('2.1', '2.52')
     @wsgi.expected_errors(404)
     @validation.query_schema(schema.search_query)
     def search(self, req, id):
@@ -458,7 +458,7 @@ class HypervisorsController(wsgi.Controller):
 
         return {'hypervisors': hypervisors}
 
-    @wsgi.Controller.api_version('2.1', '2.52')
+    @wsgi.api_version('2.1', '2.52')
     @wsgi.expected_errors(404)
     @validation.query_schema(schema.servers_query)
     def servers(self, req, id):
@@ -504,7 +504,7 @@ class HypervisorsController(wsgi.Controller):
 
         return {'hypervisors': hypervisors}
 
-    @wsgi.Controller.api_version('2.1', '2.87')
+    @wsgi.api_version('2.1', '2.87')
     @wsgi.expected_errors(())
     @validation.query_schema(schema.statistics_query)
     def statistics(self, req):
