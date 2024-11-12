@@ -87,7 +87,7 @@ class UEFIServersTest(base.ServersTestBase):
             'is_public': False,
             'container_format': 'ova',
             'disk_format': 'vhd',
-            'size': '74185822',
+            'size': 74185822,
             'min_ram': 0,
             'min_disk': 0,
             'protected': False,
