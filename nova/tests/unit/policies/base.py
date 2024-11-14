@@ -77,50 +77,70 @@ class BasePolicyTest(test.TestCase):
 
         # all context are with implied roles.
         self.legacy_admin_context = nova_context.RequestContext(
-                user_id="legacy_admin", project_id=self.admin_project_id,
-                roles=['admin', 'member', 'reader'])
+            user_id=uuids.user_legacy_admin,
+            user_name='legacy_admin',
+            project_id=self.admin_project_id,
+            roles=['admin', 'member', 'reader'])
 
         # system scoped users
         self.system_admin_context = nova_context.RequestContext(
-                user_id="admin",
-                roles=['admin', 'member', 'reader'], system_scope='all')
+            user_id=uuids.user_admin,
+            user_name='admin',
+            roles=['admin', 'member', 'reader'], system_scope='all')
 
         self.system_member_context = nova_context.RequestContext(
-                user_id="member",
-                roles=['member', 'reader'], system_scope='all')
+            user_id=uuids.user_member,
+            user_name='member',
+            roles=['member', 'reader'], system_scope='all')
 
         self.system_reader_context = nova_context.RequestContext(
-                user_id="reader", roles=['reader'], system_scope='all')
+            user_id=uuids.user_reader,
+            user_name='reader',
+            roles=['reader'],
+            system_scope='all')
 
         self.system_foo_context = nova_context.RequestContext(
-                user_id="foo", roles=['foo'], system_scope='all')
+            user_id=uuids.user_foo,
+            user_name='foo',
+            roles=['foo'],
+            system_scope='all')
 
         # project scoped users
         self.project_admin_context = nova_context.RequestContext(
-                user_id="project_admin", project_id=self.project_id,
-                roles=['admin', 'member', 'reader'])
+            user_id=uuids.user_project_admin,
+            user_name='project_admin',
+            project_id=self.project_id,
+            roles=['admin', 'member', 'reader'])
 
         self.project_member_context = nova_context.RequestContext(
-                user_id="project_member", project_id=self.project_id,
-                roles=['member', 'reader'])
+            user_id=uuids.user_project_member,
+            user_name='project_member',
+            project_id=self.project_id,
+            roles=['member', 'reader'])
 
         self.project_reader_context = nova_context.RequestContext(
-                user_id="project_reader", project_id=self.project_id,
-                roles=['reader'])
+            user_id=uuids.user_project_reader,
+            user_name='project_reader',
+            project_id=self.project_id,
+            roles=['reader'])
 
         self.project_foo_context = nova_context.RequestContext(
-                user_id="project_foo", project_id=self.project_id,
-                roles=['foo'])
+            user_id=uuids.user_project_foo,
+            user_name='project_foo',
+            project_id=self.project_id,
+            roles=['foo'])
 
         self.other_project_member_context = nova_context.RequestContext(
-                user_id="other_project_member",
-                project_id=self.project_id_other,
-                roles=['member', 'reader'])
+            user_id=uuids.user_other_project_member,
+            user_name='other_project_member',
+            project_id=self.project_id_other,
+            roles=['member', 'reader'])
 
         self.other_project_reader_context = nova_context.RequestContext(
-                user_id="other_project_member",
-                project_id=self.project_id_other,
-                roles=['reader'])
+            user_id=uuids.user_other_project_reader,
+            user_name='other_project_reader',
+            project_id=self.project_id_other,
+            roles=['reader'])
 
         self.all_contexts = set([
             self.legacy_admin_context, self.system_admin_context,

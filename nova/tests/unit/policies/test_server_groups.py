@@ -43,15 +43,18 @@ class ServerGroupPolicyTest(base.BasePolicyTest):
             fixtures.MockPatch('nova.objects.InstanceGroup.get_by_uuid')).mock
         self.sg = [objects.InstanceGroup(
                     uuid=uuids.fake_id, name='fake',
-                    project_id=self.project_id, user_id='u1',
+                    project_id=self.project_id,
+                    user_id=uuids.user_id,
                     policies=[], members=[]),
                    objects.InstanceGroup(
-                    uuid=uuids.fake_id, name='fake2', project_id='proj2',
-                    user_id='u2', policies=[], members=[])]
+                    uuid=uuids.fake_id, name='fake2',
+                    project_id=self.project_id_other,
+                    user_id=uuids.user_id_other,
+                    policies=[], members=[])]
         self.mock_get.return_value = self.sg[0]
 
         # With legacy rule and no scope checks, all admin, project members
-        # project reader or project any role(because legacy rule allow SG
+        # project reader or project any role (because legacy rule allow SG
         # owner- having same project id and no role check) is able to
         # delete and get SG.
         self.project_member_authorized_contexts = [
@@ -120,10 +123,10 @@ class ServerGroupPolicyTest(base.BasePolicyTest):
         for resp in authorize_res:
             projs = [sg['project_id'] for sg in resp['server_groups']]
             self.assertEqual(2, len(projs))
-            self.assertIn('proj2', projs)
+            self.assertIn(self.project_id_other, projs)
         for resp in unauthorize_res:
             projs = [sg['project_id'] for sg in resp['server_groups']]
-            self.assertNotIn('proj2', projs)
+            self.assertNotIn(self.project_id_other, projs)
 
     def test_show_server_groups_policy(self):
         rule_name = policies.POLICY_ROOT % 'show'
