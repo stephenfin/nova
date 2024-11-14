@@ -16,7 +16,7 @@
 import copy
 from unittest import mock
 
-from oslo_utils.fixture import uuidsentinel
+from oslo_utils.fixture import uuidsentinel as uuids
 from oslo_utils import uuidutils
 import webob
 
@@ -71,7 +71,7 @@ def server_group_db(sg):
     attrs['created_at'] = None
     attrs['updated_at'] = None
     if 'user_id' not in attrs:
-        attrs['user_id'] = fakes.FAKE_USER_ID
+        attrs['user_id'] = uuids.user_id
     if 'project_id' not in attrs:
         attrs['project_id'] = fakes.FAKE_PROJECT_ID
     attrs['id'] = 7
@@ -87,21 +87,25 @@ class ServerGroupTestV21(test.NoDBTestCase):
     def setUp(self):
         super(ServerGroupTestV21, self).setUp()
         self._setup_controller()
-        self.member_req = fakes.HTTPRequest.member_req('')
-        self.reader_req = fakes.HTTPRequest.reader_req('')
-        self.admin_req = fakes.HTTPRequest.blank('', use_admin_context=True)
-        self.foo_req = fakes.HTTPRequest.blank('', project_id='foo')
+        self.member_req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id)
+        self.reader_req = fakes.HTTPRequest.reader_req(
+            '', user_id=uuids.reader_user_id)
+        self.admin_req = fakes.HTTPRequest.blank(
+            '', user_id=uuids.admin_user_id, use_admin_context=True)
+        self.foo_req = fakes.HTTPRequest.blank(
+            '', user_id=uuids.user_id, project_id='foo')
         self.policy = self.useFixture(fixtures.RealPolicyFixture())
 
         self.useFixture(fixtures.Database(database='api'))
         cells = fixtures.CellDatabases()
-        cells.add_cell_database(uuidsentinel.cell1)
-        cells.add_cell_database(uuidsentinel.cell2)
+        cells.add_cell_database(uuids.cell1)
+        cells.add_cell_database(uuids.cell2)
         self.useFixture(cells)
 
         ctxt = context.get_admin_context()
         self.cells = {}
-        for uuid in (uuidsentinel.cell1, uuidsentinel.cell2):
+        for uuid in (uuids.cell1, uuids.cell2):
             cm = objects.CellMapping(context=ctxt,
                                 uuid=uuid,
                                 database_connection=uuid,
@@ -128,7 +132,8 @@ class ServerGroupTestV21(test.NoDBTestCase):
         self.assertEqual(res_dict['server_group']['policies'], policies)
 
     def test_create_server_group_with_new_policy_before_264(self):
-        req = fakes.HTTPRequest.member_req('', version='2.63')
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.user_id, version='2.63')
         policy = 'anti-affinity'
         rules = {'max_server_per_host': 3}
         # 'policy' isn't an acceptable request key before 2.64
@@ -168,7 +173,7 @@ class ServerGroupTestV21(test.NoDBTestCase):
     def _create_instance(self, ctx, cell):
         with context.target_cell(ctx, cell) as cctx:
             instance = objects.Instance(context=cctx,
-                                        image_ref=uuidsentinel.fake_image_ref,
+                                        image_ref=uuids.fake_image_ref,
                                         compute_id=123,
                                         node='node1', reservation_id='a',
                                         host='host1',
@@ -185,15 +190,16 @@ class ServerGroupTestV21(test.NoDBTestCase):
         return instance
 
     def _create_instance_group(self, context, members):
-        ig = objects.InstanceGroup(context=context, name='fake_name',
-                  user_id='fake_user', project_id=fakes.FAKE_PROJECT_ID,
-                  members=members)
+        ig = objects.InstanceGroup(
+            context=context, name='fake_name',
+            user_id=uuids.user_id, project_id=fakes.FAKE_PROJECT_ID,
+            members=members)
         ig.create()
         return ig.uuid
 
     def _create_groups_and_instances(self, ctx):
-        cell1 = self.cells[uuidsentinel.cell1]
-        cell2 = self.cells[uuidsentinel.cell2]
+        cell1 = self.cells[uuids.cell1]
+        cell2 = self.cells[uuids.cell2]
         instances = [self._create_instance(ctx, cell=cell1),
                      self._create_instance(ctx, cell=cell2),
                      self._create_instance(ctx, cell=None)]
@@ -224,14 +230,14 @@ class ServerGroupTestV21(test.NoDBTestCase):
         u_id = fakes.FAKE_USER_ID
         ver = avr.APIVersionRequest(api_version)
         if ver >= avr.APIVersionRequest("2.64"):
-            sg1 = server_group_resp_template(id=uuidsentinel.sg1_id,
+            sg1 = server_group_resp_template(id=uuids.sg1_id,
                                              name=names[0],
                                              policy=policy,
                                              rules={},
                                              members=members,
                                              project_id=p_id,
                                              user_id=u_id)
-            sg2 = server_group_resp_template(id=uuidsentinel.sg2_id,
+            sg2 = server_group_resp_template(id=uuids.sg2_id,
                                              name=names[1],
                                              policy=policy,
                                              rules={},
@@ -239,14 +245,14 @@ class ServerGroupTestV21(test.NoDBTestCase):
                                              project_id=p_id,
                                              user_id=u_id)
         elif ver >= avr.APIVersionRequest("2.13"):
-            sg1 = server_group_resp_template(id=uuidsentinel.sg1_id,
+            sg1 = server_group_resp_template(id=uuids.sg1_id,
                                             name=names[0],
                                             policies=policies,
                                             members=members,
                                             metadata=metadata,
                                             project_id=p_id,
                                             user_id=u_id)
-            sg2 = server_group_resp_template(id=uuidsentinel.sg2_id,
+            sg2 = server_group_resp_template(id=uuids.sg2_id,
                                             name=names[1],
                                             policies=policies,
                                             members=members,
@@ -254,12 +260,12 @@ class ServerGroupTestV21(test.NoDBTestCase):
                                             project_id=p_id,
                                             user_id=u_id)
         else:
-            sg1 = server_group_resp_template(id=uuidsentinel.sg1_id,
+            sg1 = server_group_resp_template(id=uuids.sg1_id,
                                             name=names[0],
                                             policies=policies,
                                             members=members,
                                             metadata=metadata)
-            sg2 = server_group_resp_template(id=uuidsentinel.sg2_id,
+            sg2 = server_group_resp_template(id=uuids.sg2_id,
                                             name=names[1],
                                             policies=policies,
                                             members=members,
@@ -291,9 +297,11 @@ class ServerGroupTestV21(test.NoDBTestCase):
         path = path or '/os-server-groups?all_projects=True'
         if limited:
             path += limited
-        reader_req = fakes.HTTPRequest.reader_req(path, version=api_version)
-        admin_req = fakes.HTTPRequest.blank(path, use_admin_context=True,
-                                            version=api_version)
+        reader_req = fakes.HTTPRequest.reader_req(
+            path, user_id=uuids.reader_user_id, version=api_version)
+        admin_req = fakes.HTTPRequest.blank(
+            path, user_id=uuids.admin_user_id, use_admin_context=True,
+            version=api_version)
 
         # test as admin
         res_dict = self.controller.index(admin_req)
@@ -313,14 +321,14 @@ class ServerGroupTestV21(test.NoDBTestCase):
         p_id = fakes.FAKE_PROJECT_ID
         u_id = fakes.FAKE_USER_ID
         if api_version >= '2.13':
-            sg1 = server_group_resp_template(id=uuidsentinel.sg1_id,
+            sg1 = server_group_resp_template(id=uuids.sg1_id,
                                             name=names[0],
                                             policies=policies,
                                             members=members,
                                             metadata=metadata,
                                             project_id=p_id,
                                             user_id=u_id)
-            sg2 = server_group_resp_template(id=uuidsentinel.sg2_id,
+            sg2 = server_group_resp_template(id=uuids.sg2_id,
                                             name=names[1],
                                             policies=policies,
                                             members=members,
@@ -328,12 +336,12 @@ class ServerGroupTestV21(test.NoDBTestCase):
                                             project_id=p_id,
                                             user_id=u_id)
         else:
-            sg1 = server_group_resp_template(id=uuidsentinel.sg1_id,
+            sg1 = server_group_resp_template(id=uuids.sg1_id,
                                             name=names[0],
                                             policies=policies,
                                             members=members,
                                             metadata=metadata)
-            sg2 = server_group_resp_template(id=uuidsentinel.sg2_id,
+            sg2 = server_group_resp_template(id=uuids.sg2_id,
                                             name=names[1],
                                             policies=policies,
                                             members=members,
@@ -354,7 +362,7 @@ class ServerGroupTestV21(test.NoDBTestCase):
         self.assertEqual(expected, res_dict)
 
     def test_display_members(self):
-        ctx = context.RequestContext('fake_user', fakes.FAKE_PROJECT_ID)
+        ctx = context.RequestContext(uuids.user_id, fakes.FAKE_PROJECT_ID)
         (ig_uuid, instances, members) = self._create_groups_and_instances(ctx)
         res_dict = self.controller.show(self.reader_req, ig_uuid)
         result_members = res_dict['server_group']['members']
@@ -365,10 +373,10 @@ class ServerGroupTestV21(test.NoDBTestCase):
     def test_display_members_with_nonexistent_group(self):
         self.assertRaises(
             webob.exc.HTTPNotFound,
-            self.controller.show, self.reader_req, uuidsentinel.group)
+            self.controller.show, self.reader_req, uuids.group)
 
     def test_display_active_members_only(self):
-        ctx = context.RequestContext('fake_user', fakes.FAKE_PROJECT_ID,
+        ctx = context.RequestContext(uuids.user_id, fakes.FAKE_PROJECT_ID,
                                      roles=['member', 'reader'])
         (ig_uuid, instances, members) = self._create_groups_and_instances(ctx)
 
@@ -390,7 +398,7 @@ class ServerGroupTestV21(test.NoDBTestCase):
         self.assertIn(instances[0].uuid, result_members)
 
     def test_display_members_rbac_default(self):
-        ctx = context.RequestContext('fake_user', fakes.FAKE_PROJECT_ID)
+        ctx = context.RequestContext(uuids.user_id, fakes.FAKE_PROJECT_ID)
         ig_uuid = self._create_groups_and_instances(ctx)[0]
 
         # test as admin
@@ -593,7 +601,7 @@ class ServerGroupTestV21(test.NoDBTestCase):
 
     @mock.patch('nova.objects.InstanceGroup.destroy')
     def test_delete_server_group_by_id(self, mock_destroy):
-        sg = server_group_template(id=uuidsentinel.sg1_id)
+        sg = server_group_template(id=uuids.sg1_id)
 
         def return_server_group(_cls, context, group_id):
             self.assertEqual(sg['id'], group_id)
@@ -602,7 +610,7 @@ class ServerGroupTestV21(test.NoDBTestCase):
         self.stub_out('nova.objects.InstanceGroup.get_by_uuid',
                       return_server_group)
 
-        resp = self.controller.delete(self.member_req, uuidsentinel.sg1_id)
+        resp = self.controller.delete(self.member_req, uuids.sg1_id)
         mock_destroy.assert_called_once_with()
 
         # NOTE: on v2.1, http status code is set as wsgi_codes of API
@@ -618,7 +626,7 @@ class ServerGroupTestV21(test.NoDBTestCase):
                           self.member_req, 'invalid')
 
     def test_delete_server_group_rbac_default(self):
-        ctx = context.RequestContext('fake_user', fakes.FAKE_PROJECT_ID)
+        ctx = context.RequestContext(uuids.user_id, fakes.FAKE_PROJECT_ID)
 
         # test as admin
         ig_uuid = self._create_groups_and_instances(ctx)[0]
@@ -653,7 +661,8 @@ class ServerGroupTestV264(ServerGroupTestV213):
 
     def _create_server_group_normal(self, policies=None, policy=None,
                                     rules=None):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         sgroup = server_group_template()
         sgroup['rules'] = rules or {}
         sgroup['policy'] = policy
@@ -678,7 +687,8 @@ class ServerGroupTestV264(ServerGroupTestV213):
             self.assertEqual(res_dict['server_group']['rules'], {})
 
     def _display_server_group(self, uuid):
-        req = fakes.HTTPRequest.reader_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.reader_req(
+            '', user_id=uuids.reader_user_id, version=self.wsgi_api_version)
         group = self.controller.show(req, uuid)
         return group
 
@@ -694,7 +704,8 @@ class ServerGroupTestV264(ServerGroupTestV213):
         self.assertEqual(res_dict['server_group']['rules'], rules)
 
     def test_create_affinity_server_group_with_invalid_policy(self):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         sgroup = server_group_template(policy='affinity',
                                        rules={'max_server_per_host': 3})
         result = self.assertRaises(webob.exc.HTTPBadRequest,
@@ -702,7 +713,8 @@ class ServerGroupTestV264(ServerGroupTestV213):
         self.assertIn("Only anti-affinity policy supports rules", str(result))
 
     def test_create_anti_affinity_server_group_with_invalid_rules(self):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         # A negative test for key is unknown, the value is not positive
         # and not integer
         invalid_rules = [{'unknown_key': '3'},
@@ -722,7 +734,8 @@ class ServerGroupTestV264(ServerGroupTestV213):
                 return_value=32)
     def test_create_server_group_with_low_version_compute_service(self,
                                                                   mock_get_v):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         sgroup = server_group_template(policy='anti-affinity',
                                        rules={'max_server_per_host': 3})
         result = self.assertRaises(
@@ -738,7 +751,8 @@ class ServerGroupTestV264(ServerGroupTestV213):
             self._create_server_group_normal(policy=policy)
 
     def test_policies_since_264(self):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         # 'policies' isn't allowed in request >= 2.64
         sgroup = server_group_template(policies=['anti-affinity'])
         self.assertRaises(
@@ -746,14 +760,16 @@ class ServerGroupTestV264(ServerGroupTestV213):
             req, body={'server_group': sgroup})
 
     def test_create_server_group_without_policy(self):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         # 'policy' is required request key in request >= 2.64
         sgroup = server_group_template()
         self.assertRaises(self.validation_error, self.controller.create,
                           req, body={'server_group': sgroup})
 
     def test_create_server_group_with_illegal_policies(self):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         # blank policy
         sgroup = server_group_template(policy='')
         self.assertRaises(self.validation_error, self.controller.create,
@@ -775,7 +791,8 @@ class ServerGroupTestV264(ServerGroupTestV213):
                           req, body={'server_group': sgroup})
 
     def test_additional_params(self):
-        req = fakes.HTTPRequest.member_req('', version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.member_req(
+            '', user_id=uuids.member_user_id, version=self.wsgi_api_version)
         sgroup = server_group_template(unknown='unknown')
         self.assertRaises(self.validation_error, self.controller.create,
                           req, body={'server_group': sgroup})
@@ -790,7 +807,9 @@ class ServerGroupTestV275(ServerGroupTestV264):
             path='/os-server-groups?dummy=False&all_projects=True')
 
     def test_list_server_group_additional_param(self):
-        req = fakes.HTTPRequest.reader_req('/os-server-groups?dummy=False',
-                                           version=self.wsgi_api_version)
+        req = fakes.HTTPRequest.reader_req(
+            '/os-server-groups?dummy=False',
+            user_id=uuids.reader_user_id,
+            version=self.wsgi_api_version)
         self.assertRaises(self.validation_error, self.controller.index,
                           req)
