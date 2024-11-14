@@ -17,7 +17,7 @@ from unittest import mock
 
 import webob
 
-from nova.api.openstack.compute import volumes as volumes_v21
+from nova.api.openstack.compute import snapshots
 from nova import exception
 from nova import test
 from nova.tests.unit.api.openstack import fakes
@@ -27,7 +27,7 @@ FAKE_UUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 
 
 class SnapshotApiTestV21(test.NoDBTestCase):
-    controller = volumes_v21.SnapshotController()
+    controller = snapshots.SnapshotController()
     validation_error = exception.ValidationError
 
     def setUp(self):
@@ -80,7 +80,7 @@ class SnapshotApiTestV21(test.NoDBTestCase):
 
         # NOTE: on v2.1, http status code is set as wsgi_codes of API
         # method instead of status_int in a response object.
-        if isinstance(self.controller, volumes_v21.SnapshotController):
+        if isinstance(self.controller, snapshots.SnapshotController):
             status_int = delete.wsgi_codes(self.req)
         else:
             status_int = result.status_int
@@ -227,7 +227,7 @@ class TestSnapshotAPIDeprecation(test.NoDBTestCase):
 
     def setUp(self):
         super(TestSnapshotAPIDeprecation, self).setUp()
-        self.controller = volumes_v21.SnapshotController()
+        self.controller = snapshots.SnapshotController()
         self.req = fakes.HTTPRequest.blank('', version='2.36')
 
     def test_all_apis_return_not_found(self):
@@ -241,3 +241,30 @@ class TestSnapshotAPIDeprecation(test.NoDBTestCase):
             self.controller.create, self.req, {})
         self.assertRaises(exception.VersionNotFoundForAPIMethod,
             self.controller.detail, self.req)
+
+
+class BadRequestSnapshotTestCaseV21(test.NoDBTestCase):
+    """Tests of places we throw 400 Bad Request from"""
+
+    def setUp(self):
+        super().setUp()
+        self.controller = snapshots.SnapshotController()
+
+    def _bad_request_create(self, body):
+        req = fakes.HTTPRequest.blank(
+            '/v2/%s/os-snapshots' % (fakes.FAKE_PROJECT_ID))
+        req.method = 'POST'
+
+        self.assertRaises(exception.ValidationError,
+                          self.controller.create, req, body=body)
+
+    def test_create_no_body(self):
+        self._bad_request_create(body=None)
+
+    def test_create_missing_volume(self):
+        body = {'foo': {'a': 'b'}}
+        self._bad_request_create(body=body)
+
+    def test_create_malformed_entity(self):
+        body = {'snapshot': 'string'}
+        self._bad_request_create(body=body)
