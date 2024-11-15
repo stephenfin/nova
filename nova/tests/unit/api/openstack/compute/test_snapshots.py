@@ -48,7 +48,7 @@ class SnapshotApiTestV21(test.NoDBTestCase):
         self.req = fakes.HTTPRequest.blank('')
 
     def _test_snapshot_create(self, force):
-        snapshot = {"volume_id": '12',
+        snapshot = {"volume_id": uuids.volume,
                     "force": force,
                     "display_name": "Snapshot Test Name",
                     "display_description": "Snapshot Test Desc"}
@@ -75,7 +75,7 @@ class SnapshotApiTestV21(test.NoDBTestCase):
                           self.controller.create, self.req, body=body)
 
     def test_snapshot_delete(self):
-        snapshot_id = '123'
+        snapshot_id = uuids.snapshot
         delete = self.controller.delete
         result = delete(self.req, snapshot_id)
 
@@ -98,7 +98,7 @@ class SnapshotApiTestV21(test.NoDBTestCase):
                 self.req, '-1')
 
     def test_snapshot_show(self):
-        snapshot_id = '123'
+        snapshot_id = uuids.snapshot
         resp_dict = self.controller.show(self.req, snapshot_id)
         self.assertIn('snapshot', resp_dict)
         self.assertEqual(str(snapshot_id), resp_dict['snapshot']['id'])
