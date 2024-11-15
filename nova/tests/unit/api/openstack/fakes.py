@@ -638,7 +638,7 @@ def stub_volume_check_attach(self, context, *args, **param):
 def stub_snapshot(id, **kwargs):
     snapshot = {
         'id': id,
-        'volume_id': 12,
+        'volume_id': uuids.volume,
         'status': 'available',
         'volume_size': 100,
         'created_at': timeutils.utcnow(),
@@ -652,8 +652,9 @@ def stub_snapshot(id, **kwargs):
 
 
 def stub_snapshot_create(self, context, volume_id, name, description):
-    return stub_snapshot(100, volume_id=volume_id, display_name=name,
-                         display_description=description)
+    return stub_snapshot(
+        uuids.snapshot, volume_id=volume_id, display_name=name,
+        display_description=description)
 
 
 def stub_compute_volume_snapshot_create(self, context, volume_id, create_info):
