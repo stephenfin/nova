@@ -582,7 +582,7 @@ def stub_volume(id, **kwargs):
         'host': 'fakehost',
         'size': 1,
         'availability_zone': 'fakeaz',
-        'status': 'fakestatus',
+        'status': 'available',
         'attach_status': 'attached',
         'name': 'vol name',
         'display_name': 'displayname',
@@ -593,10 +593,11 @@ def stub_volume(id, **kwargs):
         'volume_metadata': [],
         'volume_type': {'name': 'vol_type_name'},
         'multiattach': False,
-        'attachments': {'fakeuuid': {'mountpoint': '/'},
-                        'fakeuuid2': {'mountpoint': '/dev/sdb'}
-                        }
-              }
+        'attachments': {
+            uuids.server_a: {'mountpoint': '/'},
+            uuids.server_b: {'mountpoint': '/dev/sdb'}
+        }
+    }
 
     volume.update(kwargs)
     return volume
@@ -604,7 +605,7 @@ def stub_volume(id, **kwargs):
 
 def stub_volume_create(self, context, size, name, description, snapshot,
                        **param):
-    vol = stub_volume('1')
+    vol = stub_volume(uuids.volume)
     vol['size'] = size
     vol['display_name'] = name
     vol['display_description'] = description
@@ -625,9 +626,9 @@ def stub_volume_get(self, context, volume_id):
 
 
 def stub_volume_get_all(context, search_opts=None):
-    return [stub_volume(100, project_id='fake'),
-            stub_volume(101, project_id='superfake'),
-            stub_volume(102, project_id='superduperfake')]
+    return [stub_volume(uuids.volume_a, project_id='fake'),
+            stub_volume(uuids.volume_b, project_id='superfake'),
+            stub_volume(uuids.volume_c, project_id='superduperfake')]
 
 
 def stub_volume_check_attach(self, context, *args, **param):
@@ -677,9 +678,9 @@ def stub_snapshot_get(self, context, snapshot_id):
 
 
 def stub_snapshot_get_all(self, context):
-    return [stub_snapshot(100, project_id='fake'),
-            stub_snapshot(101, project_id='superfake'),
-            stub_snapshot(102, project_id='superduperfake')]
+    return [stub_snapshot(uuids.snapshot_a, project_id='fake'),
+            stub_snapshot(uuids.snapshot_b, project_id='superfake'),
+            stub_snapshot(uuids.snapshot_c, project_id='superduperfake')]
 
 
 def stub_bdm_get_all_by_instance_uuids(context, instance_uuids,

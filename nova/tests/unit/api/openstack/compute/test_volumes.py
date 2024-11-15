@@ -163,7 +163,7 @@ class VolumeApiTestV21(test.NoDBTestCase):
         req.headers['content-type'] = 'application/json'
         resp = req.get_response(self.app)
 
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(200, resp.status_int, resp.body)
 
         resp_dict = jsonutils.loads(resp.body)
         self.assertIn('volume', resp_dict)
@@ -219,17 +219,18 @@ class VolumeApiTestV21(test.NoDBTestCase):
     def test_volume_index(self):
         req = fakes.HTTPRequest.blank(self.url_prefix + '/os-volumes')
         resp = req.get_response(self.app)
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(200, resp.status_int, resp.body)
 
     def test_volume_detail(self):
         req = fakes.HTTPRequest.blank(self.url_prefix + '/os-volumes/detail')
         resp = req.get_response(self.app)
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(200, resp.status_int, resp.body)
 
     def test_volume_show(self):
-        req = fakes.HTTPRequest.blank(self.url_prefix + '/os-volumes/123')
+        req = fakes.HTTPRequest.blank(
+            f'{self.url_prefix}/os-volumes/{uuids.volume}')
         resp = req.get_response(self.app)
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(200, resp.status_int, resp.body)
 
     @mock.patch.object(cinder.API, 'get',
                        side_effect=exception.VolumeNotFound(
@@ -238,17 +239,18 @@ class VolumeApiTestV21(test.NoDBTestCase):
         req = fakes.HTTPRequest.blank('%s/os-volumes/%s' % (self.url_prefix,
                                                             uuids.volume))
         resp = req.get_response(self.app)
-        self.assertEqual(404, resp.status_int)
+        self.assertEqual(404, resp.status_int, resp.body)
         self.assertIn('Volume %s could not be found.' % uuids.volume,
                       encodeutils.safe_decode(resp.body))
         mock_get.assert_called_once_with(req.environ['nova.context'],
                                          uuids.volume)
 
     def test_volume_delete(self):
-        req = fakes.HTTPRequest.blank(self.url_prefix + '/os-volumes/123')
+        req = fakes.HTTPRequest.blank(
+            f'{self.url_prefix}/os-volumes/{uuids.volume}')
         req.method = 'DELETE'
         resp = req.get_response(self.app)
-        self.assertEqual(202, resp.status_int)
+        self.assertEqual(202, resp.status_int, resp.body)
 
     @mock.patch.object(cinder.API, 'delete',
                        side_effect=exception.VolumeNotFound(
@@ -258,7 +260,7 @@ class VolumeApiTestV21(test.NoDBTestCase):
                                                             uuids.volume))
         req.method = 'DELETE'
         resp = req.get_response(self.app)
-        self.assertEqual(404, resp.status_int)
+        self.assertEqual(404, resp.status_int, resp.body)
         self.assertIn('Volume %s could not be found.' % uuids.volume,
                       encodeutils.safe_decode(resp.body))
         mock_delete.assert_called_once_with(req.environ['nova.context'],
@@ -321,7 +323,7 @@ class VolumeApiTestV21(test.NoDBTestCase):
                 self.url_prefix + url + '?%s=%s&%s=%s' %
                 (param, value, param, value))
             resp = req.get_response(self.app)
-            self.assertEqual(200, resp.status_int)
+            self.assertEqual(200, resp.status_int, resp.body)
 
     def test_list_duplicate_query_parameters_validation(self):
         self._test_list_duplicate_query_parameters_validation('/os-volumes')
@@ -334,13 +336,13 @@ class VolumeApiTestV21(test.NoDBTestCase):
         req = fakes.HTTPRequest.blank(self.url_prefix +
             '/os-volumes?limit=1&offset=1&additional=something')
         resp = req.get_response(self.app)
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(200, resp.status_int, resp.body)
 
     def test_detail_list_with_additional_filter(self):
         req = fakes.HTTPRequest.blank(self.url_prefix +
             '/os-volumes/detail?limit=1&offset=1&additional=something')
         resp = req.get_response(self.app)
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(200, resp.status_int, resp.body)
 
 
 class BadRequestVolumeTestCaseV21(test.NoDBTestCase):
