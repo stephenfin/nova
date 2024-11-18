@@ -602,7 +602,7 @@ class VolumeAttachTestsV249(test.NoDBTestCase):
         self.assertRaises(exception.ValidationError, self.attachments.create,
                           self.req, FAKE_UUID, body=body)
 
-    @mock.patch('nova.compute.api.API.attach_volume')
+    @mock.patch('nova.compute.api.API.attach_volume', return_value='/dev/fake')
     @mock.patch('nova.compute.api.API.get', fake_get_instance)
     def test_tagged_volume_attach_valid_tag(self, _):
         body = {'volumeAttachment': {'volumeId': FAKE_UUID_A,
@@ -1241,7 +1241,7 @@ class VolumeAttachTestsV289(UpdateVolumeAttachTests):
                 'volumeId': FAKE_UUID_A,
                 'tag': None,
                 'delete_on_termination': False,
-                'attachment_id': None,
+                'attachment_id': uuids.attachment_id,
                 'bdm_uuid': uuids.bdm,
             }
         }
