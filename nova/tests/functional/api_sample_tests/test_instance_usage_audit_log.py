@@ -30,10 +30,12 @@ class InstanceUsageAuditLogJsonTest(api_sample_base.ApiSampleTestBaseV21):
 
         def fake_service_get_all(self, context,
                                  filters=None, set_zones=False):
-            services = [objects.Service(host='samplehost0'),
-                        objects.Service(host='samplehost1'),
-                        objects.Service(host='samplehost2'),
-                        objects.Service(host='samplehost3')]
+            services = [
+                objects.Service(host='2c8ef37b-f0cc-4a9e-92a6-32df0095cb12'),
+                objects.Service(host='60dbe74d-0cf3-419b-83f5-407e4b78c7b4'),
+                objects.Service(host='2aa90c00-23eb-4da6-aff9-eda66bb56182'),
+                objects.Service(host='329fa448-f6bb-4e72-b954-faa66c30d4fa'),
+            ]
             return services
 
         def fake_utcnow(with_timezone=False):
