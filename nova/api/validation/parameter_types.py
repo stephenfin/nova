@@ -15,6 +15,7 @@
 Common parameter types for validating request Body.
 
 """
+
 import copy
 import functools
 import re
@@ -27,7 +28,6 @@ _REGEX_RANGE_CACHE = {}
 
 
 def memorize(func):
-
     @functools.wraps(func)
     def memorizer(*args, **kwargs):
         global _REGEX_RANGE_CACHE
@@ -37,6 +37,7 @@ def memorize(func):
             value = func(*args, **kwargs)
             _REGEX_RANGE_CACHE[key] = value
         return value
+
     return memorizer
 
 
@@ -86,8 +87,9 @@ def _is_printable(char):
     separators.
     """
     category = unicodedata.category(char)
-    return (not category.startswith("C") and
-            (not category.startswith("Z") or category == "Zs"))
+    return not category.startswith("C") and (
+        not category.startswith("Z") or category == "Zs"
+    )
 
 
 def _get_all_chars():
@@ -102,6 +104,7 @@ def _get_all_chars():
 # empty string is tested. Otherwise it is not deterministic which
 # constraint fails and this causes issues for some unittests when
 # PYTHONHASHSEED is set randomly.
+
 
 @memorize
 def _build_regex_range(ws=True, invert=False, exclude=None):
@@ -139,8 +142,7 @@ def _build_regex_range(ws=True, invert=False, exclude=None):
         else:
             # Zs is the unicode class for space characters, of which
             # there are about 10 in this range.
-            result = (_is_printable(char) and
-                      unicodedata.category(char) != "Zs")
+            result = _is_printable(char) and unicodedata.category(char) != 'Zs'
         if invert is True:
             return not result
         return result
@@ -165,64 +167,83 @@ def _build_regex_range(ws=True, invert=False, exclude=None):
 
 valid_name_regex_base = '^(?![%s])[%s]*(?<![%s])$'
 
-
 valid_name_regex = ValidationRegex(
     valid_name_regex_base % (
         _build_regex_range(ws=False, invert=True),
         _build_regex_range(),
-        _build_regex_range(ws=False, invert=True)),
-    _("printable characters. Can not start or end with whitespace."))
-
+        _build_regex_range(ws=False, invert=True),
+    ),
+    _("printable characters. Can not start or end with whitespace."),
+)
 
 # This regex allows leading/trailing whitespace
 valid_name_leading_trailing_spaces_regex_base = (
     "^[%(ws)s]*[%(no_ws)s]+[%(ws)s]*$|"
-    "^[%(ws)s]*[%(no_ws)s][%(no_ws)s%(ws)s]+[%(no_ws)s][%(ws)s]*$")
-
+    "^[%(ws)s]*[%(no_ws)s][%(no_ws)s%(ws)s]+[%(no_ws)s][%(ws)s]*$"
+)
 
 valid_az_name_regex = ValidationRegex(
     valid_name_regex_base % (
         _build_regex_range(ws=False, invert=True),
         _build_regex_range(exclude=[':']),
-        _build_regex_range(ws=False, invert=True)),
-    _("printable characters except :."
-      "Can not start or end with whitespace."))
-
+        _build_regex_range(ws=False, invert=True),
+    ),
+    _(
+        "printable characters except :."
+        "Can not start or end with whitespace."
+    ),
+)
 
 # az's name disallow ':'.
 valid_az_name_leading_trailing_spaces_regex = ValidationRegex(
     valid_name_leading_trailing_spaces_regex_base % {
         'ws': _build_regex_range(exclude=[':']),
-        'no_ws': _build_regex_range(ws=False, exclude=[':'])},
-    _("printable characters except :, "
-      "with at least one non space character"))
-
+        'no_ws': _build_regex_range(ws=False, exclude=[':']),
+    },
+    _(
+        "printable characters except :, "
+        "with at least one non space character"
+    ),
+)
 
 valid_name_leading_trailing_spaces_regex = ValidationRegex(
     valid_name_leading_trailing_spaces_regex_base % {
         'ws': _build_regex_range(),
-        'no_ws': _build_regex_range(ws=False)},
-    _("printable characters with at least one non space character"))
-
+        'no_ws': _build_regex_range(ws=False)
+    },
+    _('printable characters with at least one non space character'),
+)
 
 valid_description_regex_base = '^[%s]*$'
 
-
-valid_description_regex = valid_description_regex_base % (
-    _build_regex_range())
-
+valid_description_regex = valid_description_regex_base % (_build_regex_range())
 
 boolean = {
     'type': ['boolean', 'string'],
-    'enum': [True, 'True', 'TRUE', 'true', '1', 'ON', 'On', 'on',
-             'YES', 'Yes', 'yes',
-             False, 'False', 'FALSE', 'false', '0', 'OFF', 'Off', 'off',
-             'NO', 'No', 'no'],
-}
-
-
-none = {
-    'enum': ['None', None, {}]
+    'enum': [
+        True,
+        'True',
+        'TRUE',
+        'true',
+        '1',
+        'ON',
+        'On',
+        'on',
+        'YES',
+        'Yes',
+        'yes',
+        False,
+        'False',
+        'FALSE',
+        'false',
+        '0',
+        'OFF',
+        'Off',
+        'off',
+        'NO',
+        'No',
+        'no',
+    ],
 }
 
 
@@ -233,16 +254,18 @@ name_or_none = {
     ]
 }
 
-
 positive_integer = {
     'type': ['integer', 'string'],
-    'pattern': '^[0-9]*$', 'minimum': 1, 'minLength': 1
+    'pattern': '^[0-9]*$',
+    'minimum': 1,
+    'minLength': 1,
 }
-
 
 non_negative_integer = {
     'type': ['integer', 'string'],
-    'pattern': '^[0-9]*$', 'minimum': 0, 'minLength': 1
+    'pattern': '^[0-9]*$',
+    'minimum': 0,
+    'minLength': 1,
 }
 
 # A host-specific or leaf label.
@@ -272,89 +295,110 @@ non_negative_integer = {
 #   handle host names of up to 255 characters.
 hostname = {
     'type': 'string',
+    'pattern': '^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$',
     'minLength': 2,
     'maxLength': 63,
-    'pattern': '^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$',
 }
 
 fqdn = {
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
+    'type': 'string',
     # NOTE: 'host' is defined in "services" table, and that
     # means a hostname. The hostname grammar in RFC952 does
     # not allow for underscores in hostnames. However, this
     # schema allows them, because it sometimes occurs in
     # real systems.
     'pattern': '^[a-zA-Z0-9-._]*$',
+    'minLength': 1,
+    'maxLength': 255,
 }
-
 
 name = {
     # NOTE: Nova v2.1 API contains some 'name' parameters such
     # as server, flavor, aggregate and so on. They are
     # stored in the DB and Nova specific parameters.
     # This definition is used for all their parameters.
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
-    'format': 'name'
+    'type': 'string',
+    'format': 'name',
+    'minLength': 1,
+    'maxLength': 255,
 }
-
 
 az_name = {
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
-    'format': 'az_name'
+    'type': 'string',
+    'format': 'az_name',
+    'minLength': 1,
+    'maxLength': 255,
 }
 
+keypair_name_special_chars = {
+    'allOf': [
+        name,
+        {
+            'type': 'string',
+            'pattern': r'^[_\- a-zA-Z0-9]+$',
+            'minLength': 1,
+            'maxLength': 255,
+        },
+    ]
+}
 
-keypair_name_special_chars = {'allOf': [name, {
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
-    'format': 'keypair_name_20'
-}]}
-
-
-keypair_name_special_chars_292 = {'allOf': [name, {
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
-    'format': 'keypair_name_292'
-}]}
-
+keypair_name_special_chars_292 = {
+    'allOf': [
+        name,
+        {
+            'type': 'string',
+            'pattern': r'^[_\-\@\. a-zA-Z0-9]+$',
+            'minLength': 1,
+            'maxLength': 255,
+        },
+    ]
+}
 
 az_name_with_leading_trailing_spaces = {
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
-    'format': 'az_name_with_leading_trailing_spaces'
+    'type': 'string',
+    'format': 'az_name_with_leading_trailing_spaces',
+    'minLength': 1,
+    'maxLength': 255,
 }
-
 
 name_with_leading_trailing_spaces = {
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
-    'format': 'name_with_leading_trailing_spaces'
+    'type': 'string',
+    'format': 'name_with_leading_trailing_spaces',
+    'minLength': 1,
+    'maxLength': 255,
 }
-
 
 description = {
-    'type': ['string', 'null'], 'minLength': 0, 'maxLength': 255,
+    'type': ['string', 'null'],
     'pattern': valid_description_regex,
+    'minLength': 0,
+    'maxLength': 255,
 }
-
 
 # TODO(stephenfin): This is no longer used and should be removed
 tcp_udp_port = {
-    'type': ['integer', 'string'], 'pattern': '^[0-9]*$',
-    'minimum': 0, 'maximum': 65535,
-    'minLength': 1
+    'type': ['integer', 'string'],
+    'pattern': '^[0-9]*$',
+    'minimum': 0,
+    'maximum': 65535,
+    'minLength': 1,
 }
-
 
 project_id = {
-    'type': 'string', 'minLength': 1, 'maxLength': 255,
-    'pattern': '^[a-zA-Z0-9-]*$'
+    'type': 'string',
+    'pattern': '^[a-zA-Z0-9-]*$',
+    'minLength': 1,
+    'maxLength': 255,
 }
-
 
 server_id = {
-    'type': 'string', 'format': 'uuid'
+    'type': 'string',
+    'format': 'uuid',
 }
 
-
 image_id = {
-    'type': 'string', 'format': 'uuid'
+    'type': 'string',
+    'format': 'uuid',
 }
 
 share_id = {
@@ -378,35 +422,35 @@ share_status = {
 image_id_or_empty_string = {
     'oneOf': [
         {'type': 'string', 'format': 'uuid'},
-        {'type': 'string', 'maxLength': 0}
+        {'type': 'string', 'maxLength': 0},
     ]
 }
 
-
 volume_id = {
-    'type': 'string', 'format': 'uuid'
+    'type': 'string',
+    'format': 'uuid',
 }
-
 
 attachment_id = {
-    'type': 'string', 'format': 'uuid'
+    'type': 'string',
+    'format': 'uuid',
 }
-
 
 volume_type = {
-    'type': ['string', 'null'], 'minLength': 0, 'maxLength': 255
+    'type': ['string', 'null'],
+    'minLength': 0,
+    'maxLength': 255,
 }
-
 
 network_id = {
-    'type': 'string', 'format': 'uuid'
+    'type': 'string',
+    'format': 'uuid',
 }
-
 
 network_port_id = {
-    'type': 'string', 'format': 'uuid'
+    'type': 'string',
+    'format': 'uuid',
 }
-
 
 admin_password = {
     # NOTE: admin_password is the admin password of a server
@@ -414,60 +458,54 @@ admin_password = {
     # In addition, users set sometimes long/strange string
     # as password. It is unnecessary to limit string length
     # and string pattern.
-    'type': 'string',
+    'type': 'string'
 }
-
 
 flavor_ref = {
-    'type': ['string', 'integer'], 'minLength': 1
+    'type': ['string', 'integer'],
+    'minLength': 1,
 }
-
 
 metadata = {
     'type': 'object',
     'patternProperties': {
         '^[a-zA-Z0-9-_:. ]{1,255}$': {
-            'type': 'string', 'maxLength': 255
+            'type': 'string',
+            'maxLength': 255
         }
     },
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
-
 metadata_with_null = copy.deepcopy(metadata)
-metadata_with_null['patternProperties']['^[a-zA-Z0-9-_:. ]{1,255}$']['type'] =\
-    ['string', 'null']
-
+metadata_with_null['patternProperties']['^[a-zA-Z0-9-_:. ]{1,255}$'][
+    'type'
+] = ['string', 'null']
 
 mac_address = {
     'type': 'string',
-    'pattern': '^([0-9a-fA-F]{2})(:[0-9a-fA-F]{2}){5}$'
+    'pattern': '^([0-9a-fA-F]{2})(:[0-9a-fA-F]{2}){5}$',
 }
-
 
 ip_address = {
     'type': 'string',
     'oneOf': [
         {'format': 'ipv4'},
-        {'format': 'ipv6'}
-    ]
+        {'format': 'ipv6'},
+    ],
 }
-
 
 ipv4 = {
     'type': 'string', 'format': 'ipv4'
 }
 
-
 ipv6 = {
     'type': 'string', 'format': 'ipv6'
 }
 
-
 cidr = {
     'type': 'string', 'format': 'cidr'
 }
-
 
 volume_size = {
     'type': ['integer', 'string'],
@@ -475,12 +513,12 @@ volume_size = {
     'minimum': 1,
     # maximum's value is limited to db constant's MAX_INT
     # (in nova/db/constants.py)
-    'maximum': 0x7FFFFFFF
+    'maximum': 0x7FFFFFFF,
 }
 
 disk_config = {
     'type': 'string',
-    'enum': ['AUTO', 'MANUAL']
+    'enum': ['AUTO', 'MANUAL'],
 }
 
 accessIPv4 = {
@@ -495,7 +533,6 @@ accessIPv6 = {
 
 flavor_param_positive = copy.deepcopy(volume_size)
 
-
 flavor_param_non_negative = copy.deepcopy(volume_size)
 flavor_param_non_negative['minimum'] = 0
 
@@ -507,22 +544,23 @@ personality = {
             'path': {'type': 'string'},
             'contents': {
                 'type': 'string',
-                'format': 'base64'
-            }
+                'format': 'base64',
+            },
         },
         'additionalProperties': False,
-    }
+    },
 }
 
 tag = {
     "type": "string",
-    "minLength": 1, "maxLength": tag.MAX_TAG_LENGTH,
-    "pattern": "^[^,/]*$"
+    "pattern": '^[^,/]*$',
+    "minLength": 1,
+    "maxLength": tag.MAX_TAG_LENGTH,
 }
 
 pagination_parameters = {
     'limit': multi_params(non_negative_integer),
-    'marker': multi_params({'type': 'string'})
+    'marker': multi_params({'type': 'string'}),
 }
 
 # The trusted_certs list is restricted to a maximum of 50 IDs.
@@ -535,5 +573,5 @@ trusted_certs = {
     "items": {
         "type": "string",
         "minLength": 1,
-    }
+    },
 }
