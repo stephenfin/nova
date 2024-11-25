@@ -27,15 +27,7 @@ show_response = {
                 'host': {'type': ['string', 'null']},
                 'port': {'type': 'integer'},
                 'internal_access_path': {
-                    'oneOf': [
-                        {
-                            'type': 'null',
-                        },
-                        {
-                            'type': 'string',
-                            'format': 'uuid',
-                        },
-                    ],
+                    'type': ['string', 'null'], 'format': 'uuid',
                 },
             },
             'required': [
