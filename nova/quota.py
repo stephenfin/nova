@@ -1427,13 +1427,7 @@ def _server_group_count(context, project_id, user_id=None):
 QUOTAS = QuotaEngine(
     resources=[
         CountableResource(
-            'instances', _instances_cores_ram_count, 'instances'),
-        CountableResource(
             'cores', _instances_cores_ram_count, 'cores'),
-        CountableResource(
-            'ram', _instances_cores_ram_count, 'ram'),
-        AbsoluteResource(
-            'metadata_items', 'metadata_items'),
         AbsoluteResource(
             'injected_files', 'injected_files'),
         AbsoluteResource(
@@ -1441,7 +1435,13 @@ QUOTAS = QuotaEngine(
         AbsoluteResource(
             'injected_file_path_bytes', 'injected_file_path_length'),
         CountableResource(
+            'instances', _instances_cores_ram_count, 'instances'),
+        CountableResource(
             'key_pairs', _keypair_get_count_by_user, 'key_pairs'),
+        AbsoluteResource(
+            'metadata_items', 'metadata_items'),
+        CountableResource(
+            'ram', _instances_cores_ram_count, 'ram'),
         CountableResource(
             'server_groups', _server_group_count, 'server_groups'),
         CountableResource(
