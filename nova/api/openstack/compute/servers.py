@@ -458,11 +458,22 @@ class ServersController(wsgi.Controller):
 
     @wsgi.expected_errors(404)
     @validation.query_schema(schema.show_query)
+    @validation.response_body_schema(schema.show_response, '2.0', '2.2')
+    @validation.response_body_schema(schema.show_response_v23, '2.3', '2.8')
+    @validation.response_body_schema(schema.show_response_v29, '2.9', '2.15')
+    @validation.response_body_schema(schema.show_response_v216, '2.16', '2.18')
+    @validation.response_body_schema(schema.show_response_v219, '2.19', '2.25')
+    @validation.response_body_schema(schema.show_response_v226, '2.26', '2.46')
+    @validation.response_body_schema(schema.show_response_v247, '2.47', '2.62')
+    @validation.response_body_schema(schema.show_response_v263, '2.63', '2.68')
+    @validation.response_body_schema(schema.show_response_v269, '2.69', '2.70')
+    @validation.response_body_schema(schema.show_response_v271, '2.71', '2.89')
+    @validation.response_body_schema(schema.show_response_v290, '2.90', '2.95')
+    @validation.response_body_schema(schema.show_response_v296, '2.96')
     def show(self, req, id):
         """Returns server details by server id."""
         context = req.environ['nova.context']
         cell_down_support = api_version_request.is_supported(req, '2.69')
-        show_server_groups = api_version_request.is_supported(req, '2.71')
 
         instance = self._get_server(
             context, req, id, is_detail=True,
@@ -472,8 +483,7 @@ class ServersController(wsgi.Controller):
                     target={'project_id': instance.project_id})
 
         return self._view_builder.show(
-            req, instance, cell_down_support=cell_down_support,
-            show_server_groups=show_server_groups)
+            req, instance, cell_down_support=cell_down_support)
 
     @staticmethod
     def _process_bdms_for_create(
@@ -916,7 +926,6 @@ class ServersController(wsgi.Controller):
         ctxt.can(server_policies.SERVERS % 'update',
                  target={'user_id': instance.user_id,
                          'project_id': instance.project_id})
-        show_server_groups = api_version_request.is_supported(req, '2.71')
 
         server = body['server']
 
@@ -965,8 +974,7 @@ class ServersController(wsgi.Controller):
                 show_srv_usg=show_srv_usg,
                 show_sec_grp=show_sec_grp,
                 show_extended_status=show_extended_status,
-                show_extended_volumes=show_extended_volumes,
-                show_server_groups=show_server_groups)
+                show_extended_volumes=show_extended_volumes)
         except exception.InstanceNotFound:
             msg = _("Instance could not be found")
             raise exc.HTTPNotFound(explanation=msg)
@@ -1167,9 +1175,9 @@ class ServersController(wsgi.Controller):
     @validation.response_body_schema(
         schema.rebuild_response_v219, '2.19', '2.25')
     @validation.response_body_schema(
-        schema.rebuild_response_v226, '2.26', '2.45')
+        schema.rebuild_response_v226, '2.26', '2.46')
     @validation.response_body_schema(
-        schema.rebuild_response_v246, '2.46', '2.53')
+        schema.rebuild_response_v247, '2.47', '2.53')
     @validation.response_body_schema(
         schema.rebuild_response_v254, '2.54', '2.56')
     @validation.response_body_schema(
@@ -1302,7 +1310,6 @@ class ServersController(wsgi.Controller):
         # NOTE(liuyulong): set the new key_name for the API response.
         # from microversion 2.54 onwards.
         show_keypair = api_version_request.is_supported(req, '2.54')
-        show_server_groups = api_version_request.is_supported(req, '2.71')
 
         # NOTE(gmann): Starting from microversion 2.75, PUT and Rebuild
         # API response will show all attributes like GET /servers API.
@@ -1332,7 +1339,6 @@ class ServersController(wsgi.Controller):
             show_sec_grp=show_sec_grp,
             show_extended_status=show_extended_status,
             show_extended_volumes=show_extended_volumes,
-            show_server_groups=show_server_groups,
             # NOTE(gmann): user_data has been added in response (by code at
             # the end of this API method) since microversion 2.57 so tell
             # view builder not to include it.
