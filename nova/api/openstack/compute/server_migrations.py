@@ -58,6 +58,7 @@ def output(migration, include_uuid=False, include_user_project=False):
     return result
 
 
+@validation.validated
 class ServerMigrationsController(wsgi.Controller):
     """The server migrations API controller for the OpenStack API."""
 
@@ -94,6 +95,9 @@ class ServerMigrationsController(wsgi.Controller):
     @wsgi.api_version("2.23")
     @wsgi.expected_errors(404)
     @validation.query_schema(schema.index_query)
+    @validation.response_body_schema(schema.index_response_v223, '2.23', '2.58')
+    @validation.response_body_schema(schema.index_response_v259, '2.59', '2.79')  # noqa: E501
+    @validation.response_body_schema(schema.index_response_v280, '2.80')
     def index(self, req, server_id):
         """Return all migrations of an instance in progress."""
         context = req.environ['nova.context']
@@ -117,6 +121,9 @@ class ServerMigrationsController(wsgi.Controller):
     @wsgi.api_version("2.23")
     @wsgi.expected_errors(404)
     @validation.query_schema(schema.show_query)
+    @validation.response_body_schema(schema.show_response_v223, '2.23', '2.58')
+    @validation.response_body_schema(schema.show_response_v259, '2.59', '2.79')  # noqa: E501
+    @validation.response_body_schema(schema.show_response_v280, '2.80')
     def show(self, req, server_id, id):
         """Return the migration of an instance in progress by id."""
         context = req.environ['nova.context']
@@ -156,6 +163,7 @@ class ServerMigrationsController(wsgi.Controller):
     @wsgi.api_version("2.24")
     @wsgi.response(202)
     @wsgi.expected_errors((400, 404, 409))
+    @validation.response_body_schema(schema.delete_response_v224, '2.24')
     def delete(self, req, server_id, id):
         """Abort an in progress migration of an instance."""
         context = req.environ['nova.context']
