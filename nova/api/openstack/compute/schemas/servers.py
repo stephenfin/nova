@@ -727,6 +727,72 @@ show_query = {
     'additionalProperties': True,
 }
 
+_server_status = {
+    'type': 'string',
+    'enum': [
+        'ACTIVE',
+        'BUILD',
+        'DELETED',
+        'ERROR',
+        'HARD_REBOOT',
+        'MIGRATING',
+        'PASSWORD',
+        'PAUSED',
+        'REBOOT',
+        'REBUILD',
+        'RESCUE',
+        'RESIZE',
+        'REVERT_RESIZE',
+        'SHELVED',
+        'SHELVED_OFFLOADED',
+        'SHUTOFF',
+        'SOFT_DELETED',
+        'SUSPENDED',
+        'VERIFY_RESIZE',
+    ],
+}
+
+index_response = {
+    'type': 'object',
+    'properties': {
+        'servers': {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'string', 'format': 'uuid'},
+                    'links': response_types.links,
+                    'name': {'type': 'string'},
+                },
+                'required': ['id', 'links', 'name'],
+                'additionalProperties': False,
+            },
+        },
+        'servers_links': response_types.collection_links,
+    },
+    'required': ['servers'],
+    'additionalProperties': False,
+}
+
+# v2.69 add an alternative representation for instances from down cells. name
+# is gone, status is in.
+index_response_v269 = copy.deepcopy(index_response)
+index_response_v269['properties']['servers']['items'] = {
+    'oneOf': [
+        index_response_v269['properties']['servers']['items'],
+        {
+            'type': 'object',
+            'properties': {
+                'id': {'type': 'string', 'format': 'uuid'},
+                'links': response_types.links,
+                'status': {'type': 'string', 'const': 'UNKNOWN'},
+            },
+            'required': ['id', 'links', 'status'],
+            'additionalProperties': False,
+        },
+    ],
+}
+
 _server_cell_down_response = {
     'type': 'object',
     'properties': {
@@ -905,7 +971,7 @@ _server_response = {
                 'additionalProperties': False,
             },
         },
-        'status': {'type': 'string'},
+        'status': _server_status,
         'tenant_id': {'type': 'string', 'format': 'uuid'},
         'updated': {'type': 'string', 'format': 'date-time'},
         'user_id': {'type': 'string'},
@@ -1238,7 +1304,7 @@ rebuild_response = {
                 },
                 'name': {'type': ['string', 'null']},
                 'progress': {'type': ['null', 'number']},
-                'status': {'type': 'string'},
+                'status': _server_status,
                 'tenant_id': {'type': 'string', 'format': 'uuid'},
                 'updated': {'type': 'string', 'format': 'date-time'},
                 'user_id': {'type': 'string'},
