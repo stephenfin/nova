@@ -1615,6 +1615,8 @@ revert_resize_response = {'type': 'null'}
 
 reboot_response = {'type': 'null'}
 
+delete_response = {'type': 'null'}
+
 start_server_response = {'type': 'null'}
 
 stop_server_response = {'type': 'null'}
