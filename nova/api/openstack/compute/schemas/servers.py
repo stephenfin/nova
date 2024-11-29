@@ -1159,6 +1159,76 @@ _server_response_v296['properties'].update({
 })
 _server_response_v296['required'].append('pinned_availability_zone')
 
+detail_response = {
+    'type': 'object',
+    'properties': {
+        'servers': {
+            'type': 'array',
+            'items': _server_response,
+        },
+        'servers_links': response_types.collection_links,
+    },
+    'required': ['servers'],
+    'additionalProperties': False,
+}
+
+detail_response_v23 = copy.deepcopy(detail_response)
+detail_response_v23['properties']['servers']['items'] = (
+    _server_response_v23
+)
+
+detail_response_v29 = copy.deepcopy(detail_response_v23)
+detail_response_v29['properties']['servers']['items'] = (
+    _server_response_v29
+)
+
+detail_response_v216 = copy.deepcopy(detail_response_v29)
+detail_response_v216['properties']['servers']['items'] = (
+    _server_response_v216
+)
+
+detail_response_v219 = copy.deepcopy(detail_response_v216)
+detail_response_v219['properties']['servers']['items'] = (
+    _server_response_v219
+)
+
+detail_response_v226 = copy.deepcopy(detail_response_v219)
+detail_response_v226['properties']['servers']['items'] = (
+    _server_response_v226
+)
+
+detail_response_v247 = copy.deepcopy(detail_response_v226)
+detail_response_v247['properties']['servers']['items'] = (
+    _server_response_v247
+)
+
+detail_response_v263 = copy.deepcopy(detail_response_v247)
+detail_response_v263['properties']['servers']['items'] = (
+    _server_response_v263
+)
+
+# this is the first version to introduce down cell support. We model this as an
+# entirely different schema rather than making most of the fields optional
+detail_response_v269 = copy.deepcopy(detail_response_v263)
+detail_response_v269['properties']['server'] = {
+    'oneOf': [_server_response_v263, _server_cell_down_response],
+}
+
+detail_response_v271 = copy.deepcopy(detail_response_v269)
+detail_response_v271['properties']['server'] = {
+    'oneOf': [_server_response_v271, _server_cell_down_response_v271],
+}
+
+detail_response_v290 = copy.deepcopy(detail_response_v271)
+detail_response_v290['properties']['server'] = {
+    'oneOf': [_server_response_v290, _server_cell_down_response_v271],
+}
+
+detail_response_v296 = copy.deepcopy(detail_response_v290)
+detail_response_v296['properties']['server'] = {
+    'oneOf': [_server_response_v296, _server_cell_down_response_v271],
+}
+
 show_response = {
     'type': 'object',
     'properties': {
