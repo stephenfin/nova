@@ -193,10 +193,7 @@ def _validate_az_name(instance):
     raise exception.InvalidName(reason=regex.reason)
 
 
-def _soft_validate_additional_properties(validator,
-                                         additional_properties_value,
-                                         instance,
-                                         schema):
+def _soft_validate_additional_properties(validator, value, instance, schema):
     """This validator function is used for legacy v2 compatible mode in v2.1.
     This will skip all the additional properties checking but keep check the
     'patternProperties'. 'patternProperties' is used for metadata API.
@@ -218,8 +215,7 @@ def _soft_validate_additional_properties(validator,
       are patternProperties specified, the extra properties will not be
       touched and raise validation error if pattern doesn't match.
     """
-    if (not validator.is_type(instance, "object") or
-            additional_properties_value):
+    if not validator.is_type(instance, "object") or value is True:
         return
 
     properties = schema.get("properties", {})
@@ -234,6 +230,11 @@ def _soft_validate_additional_properties(validator,
                 extra_properties.add(prop)
 
     if not extra_properties:
+        return
+
+    if set(extra_properties) == set(instance):
+        # NOTE(stephenfin): This is a bit of hack. If there are multiple
+        # sub-schemas (oneOf), we will expect to match on one but not the other
         return
 
     if patterns:
