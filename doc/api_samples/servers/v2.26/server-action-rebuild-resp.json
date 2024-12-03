@@ -51,7 +51,7 @@
         "status": "ACTIVE",
         "tenant_id": "6f70656e737461636b20342065766572",
         "updated": "2013-11-14T06:29:02Z",
-        "user_id": "admin",
+        "user_id": "1debf6db-444d-4ac8-9ed8-09f618a7bc01",
         "locked": false,
         "description" : "description of foobar",
         "tags": ["tag1", "tag2"]

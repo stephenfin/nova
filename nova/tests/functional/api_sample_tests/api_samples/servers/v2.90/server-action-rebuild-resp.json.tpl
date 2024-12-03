@@ -75,6 +75,6 @@
         "trusted_image_certificates": null,
         "updated": "%(isotime)s",
         "user_data": "ZWNobyAiaGVsbG8gd29ybGQi",
-        "user_id": "fake"
+        "user_id": "a16a7b90-3330-4e1e-a91b-b6277482fc7f"
     }
 }

@@ -2818,7 +2818,8 @@ class TestNovaManageLimits(integrated_helpers.ProviderUsageBaseTestCase):
     def test_migrate_to_unified_limits_flavor_scanning_project(self):
         # Create a client that uses a different project.
         other_api = api_client.TestOpenStackClient(
-            'other', self.api.base_url, project_id='other',
+            'other', uuids.user_id_other, self.api.base_url,
+            project_id=uuids.project_id_other,
             roles=['reader', 'member'])
         other_api.microversion = '2.74'
 
@@ -2839,7 +2840,8 @@ class TestNovaManageLimits(integrated_helpers.ProviderUsageBaseTestCase):
 
         # Scope the command to project 'other'. This should cause
         # VGPU to not be detected in the embedded flavors.
-        result = self.cli.migrate_to_unified_limits(project_id='other')
+        result = self.cli.migrate_to_unified_limits(
+            project_id=uuids.project_id_other)
 
         # DISK_GB will also be found because it's a known standard resource
         # class that we know will be allocated.

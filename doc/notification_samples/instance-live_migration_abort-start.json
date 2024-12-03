@@ -4,7 +4,7 @@
         "$ref": "common_payloads/InstanceActionPayload.json#",
         "nova_object.data":{
             "task_state": "migrating",
-            "action_initiator_user": "admin"
+            "action_initiator_user": "1debf6db-444d-4ac8-9ed8-09f618a7bc01"
         }
     },
     "priority":"INFO",

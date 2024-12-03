@@ -81,7 +81,7 @@
             "host_status": "UP",
             "tenant_id": "6f70656e737461636b20342065766572",
             "updated": "%(isotime)s",
-            "user_id": "admin",
+            "user_id": "1debf6db-444d-4ac8-9ed8-09f618a7bc01",
             "locked": false
         }
     ],

@@ -8,7 +8,7 @@
             "request_id": "req-f04d4b92-6241-42da-b82d-2cedb225c58d",
             "start_time": "2018-04-25T01:26:36.036697",
             "updated_at": "2018-04-25T01:26:36.525308",
-            "user_id": "admin"
+            "user_id": "1debf6db-444d-4ac8-9ed8-09f618a7bc01"
         },
         {
             "action": "create",
@@ -18,7 +18,7 @@
             "request_id": "req-d8790618-9bbf-4df0-8af8-fc9e24de29c0",
             "start_time": "2018-04-25T01:26:33.692125",
             "updated_at": "2018-04-25T01:26:35.993821",
-            "user_id": "admin"
+            "user_id": "1debf6db-444d-4ac8-9ed8-09f618a7bc01"
         }
     ]
 }

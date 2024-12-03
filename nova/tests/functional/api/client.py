@@ -128,9 +128,12 @@ class TestOpenStackClient(object):
     privileges on the project, just like in a real deployment.
     """
 
-    def __init__(self, auth_user, base_url, project_id=None, roles=None):
+    def __init__(
+        self, username, user_id, base_url, project_id=None, roles=None
+    ):
         super(TestOpenStackClient, self).__init__()
-        self.auth_user = auth_user
+        self.username = username
+        self.user_id = user_id
         self.base_url = base_url
         if project_id is None:
             self.project_id = "6f70656e737461636b20342065766572"
@@ -170,8 +173,8 @@ class TestOpenStackClient(object):
             headers['X-OpenStack-Nova-API-Version'] = self.microversion
             headers['OpenStack-API-Version'] = 'compute %s' % self.microversion
 
-        headers.setdefault('X-Auth-User', self.auth_user)
-        headers.setdefault('X-User-Id', self.auth_user)
+        headers.setdefault('X-Auth-User', self.username)
+        headers.setdefault('X-User-Id', self.user_id)
         headers.setdefault('X-Auth-Project-Id', self.project_id)
         headers.setdefault('X-Roles', ','.join(self.roles))
 

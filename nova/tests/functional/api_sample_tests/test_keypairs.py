@@ -168,14 +168,14 @@ class KeyPairsV210SampleJsonTest(KeyPairsSampleJsonTest):
         subs = {
             'keypair_type': keypair_obj.KEYPAIR_TYPE_SSH,
             'public_key': fake_crypto.get_ssh_public_key(),
-            'user_id': "fake"
+            'user_id': self.api.user_id,
         }
         self._check_keypairs_post(**subs)
 
     def test_keypairs_post(self):
         return self._check_keypairs_post(
             keypair_type=keypair_obj.KEYPAIR_TYPE_SSH,
-            user_id="admin")
+            user_id=self.api.user_id)
 
     def test_keypairs_import_key_post(self):
         # NOTE(claudiub): overrides the method with the same name in
@@ -183,17 +183,18 @@ class KeyPairsV210SampleJsonTest(KeyPairsSampleJsonTest):
         public_key = fake_crypto.get_ssh_public_key()
         self._check_keypairs_import_key_post(
             public_key, keypair_type=keypair_obj.KEYPAIR_TYPE_SSH,
-            user_id="fake")
+            user_id=self.api.user_id)
 
     def test_keypairs_delete_for_user(self):
         # Delete a keypair on behalf of a user
         subs = {
             'keypair_type': keypair_obj.KEYPAIR_TYPE_SSH,
             'public_key': fake_crypto.get_ssh_public_key(),
-            'user_id': "fake"
+            'user_id': self.api.user_id
         }
         key_name = self._check_keypairs_post(**subs)
-        response = self._do_delete('os-keypairs/%s?user_id=fake' % key_name)
+        response = self._do_delete(
+            f'os-keypairs/{key_name}?user_id={self.api.user_id}')
         self.assertEqual(self.expected_delete_status_code,
                          response.status_code)
 
@@ -205,18 +206,18 @@ class KeyPairsV210SampleJsonTest(KeyPairsSampleJsonTest):
 
         keypair_user1 = self._check_keypairs_post(
             keypair_type=keypair_obj.KEYPAIR_TYPE_SSH,
-            user_id="user1", kp_name=kp_name)
+            user_id=uuids.user1, kp_name=kp_name)
         keypair_user2 = self._check_keypairs_post(
             keypair_type=keypair_obj.KEYPAIR_TYPE_SSH,
-            user_id="user2", kp_name=kp_name)
+            user_id=uuids.user2, kp_name=kp_name)
 
         # get all keypairs for user1 (only one)
-        response = self._do_get('os-keypairs?user_id=user1')
+        response = self._do_get(f'os-keypairs?user_id={uuids.user1}')
         subs = {'keypair_name': keypair_user1}
         self._verify_response('keypairs-list-resp', subs, response, 200)
 
         # get all keypairs for user2 (only one)
-        response = self._do_get('os-keypairs?user_id=user2')
+        response = self._do_get(f'os-keypairs?user_id={uuids.user2}')
         subs = {'keypair_name': keypair_user2}
         self._verify_response('keypairs-list-resp', subs, response, 200)
 
@@ -227,7 +228,7 @@ class KeyPairsV210SampleJsonTestNotAdmin(KeyPairsV210SampleJsonTest):
     def test_keypairs_post(self):
         return self._check_keypairs_post(
             keypair_type=keypair_obj.KEYPAIR_TYPE_SSH,
-            user_id="fake")
+            user_id=self.api.user_id)
 
     def test_keypairs_post_for_other_user(self):
         rules = {'os_compute_api:os-keypairs:create':
@@ -265,9 +266,11 @@ class KeyPairsV235SampleJsonTest(api_sample_base.ApiSampleTestBaseV21):
     # uuid each time.
     def generalize_subs(self, subs, vanilla_regexes):
         subs['keypair_name'] = 'keypair-[0-9a-f-]+'
+        subs['user_id'] = vanilla_regexes['uuid']
         return subs
 
-    def test_keypairs_post(self, user="admin", kp_name=None):
+    def test_keypairs_post(self, user=None, kp_name=None):
+        user = user or self.api.user_id
         return self._check_keypairs_post(
             keypair_type=keypair_obj.KEYPAIR_TYPE_SSH,
             user_id=user, kp_name=kp_name)
@@ -304,19 +307,21 @@ class KeyPairsV235SampleJsonTest(api_sample_base.ApiSampleTestBaseV21):
 
         # sort key_pairs by name before paging
         keypairs_user1 = sorted([self.test_keypairs_post(
-            user="user1", kp_name=kp_name) for kp_name in kp_names])
+            user=uuids.user1, kp_name=kp_name) for kp_name in kp_names])
         keypairs_user2 = sorted([self.test_keypairs_post(
-            user="user2", kp_name=kp_name) for kp_name in kp_names])
+            user=uuids.user2, kp_name=kp_name) for kp_name in kp_names])
 
         # get all keypairs after the second for user1
-        response = self._do_get('os-keypairs?user_id=user1&marker=%s'
-                                % keypairs_user1[1])
+        marker = keypairs_user1[1]
+        response = self._do_get(
+            f'os-keypairs?user_id={uuids.user1}&marker={marker}')
         subs = {'keypair_name': keypairs_user1[2]}
         self._verify_response('keypairs-list-user1-resp', subs, response, 200)
 
         # get only one keypair after the second for user2
-        response = self._do_get('os-keypairs?user_id=user2&marker=%s&limit=1'
-                                % keypairs_user2[1])
+        marker = keypairs_user2[1]
+        response = self._do_get(
+            f'os-keypairs?user_id={uuids.user2}&marker={marker}&limit=1')
         subs = {'keypair_name': keypairs_user2[2]}
         self._verify_response('keypairs-list-user2-resp', subs, response, 200)
 
@@ -342,7 +347,7 @@ class KeyPairsV292SampleJsonTest(api_sample_base.ApiSampleTestBaseV21):
         subs = {
             'keypair_name': 'foo',
             'keypair_type': keypair_obj.KEYPAIR_TYPE_SSH,
-            'user_id': 'fake'
+            'user_id': self.api.user_id,
         }
         response = self._do_post('os-keypairs', 'keypairs-post-req', subs)
         self.assertEqual(400, response.status_code)
@@ -352,7 +357,7 @@ class KeyPairsV292SampleJsonTest(api_sample_base.ApiSampleTestBaseV21):
         subs = {
             'keypair_name': '!nvalid=name|',
             'keypair_type': keypair_obj.KEYPAIR_TYPE_SSH,
-            'user_id': 'fake',
+            'user_id': self.api.user_id,
             'public_key': public_key,
         }
         response = self._do_post('os-keypairs', 'keypairs-import-post-req',
@@ -366,7 +371,7 @@ class KeyPairsV292SampleJsonTest(api_sample_base.ApiSampleTestBaseV21):
         params = {
             'keypair_name': name,
             'keypair_type': keypair_obj.KEYPAIR_TYPE_SSH,
-            'user_id': 'fake',
+            'user_id': self.api.user_id,
             'public_key': public_key,
         }
         response = self._do_post('os-keypairs', 'keypairs-import-post-req',

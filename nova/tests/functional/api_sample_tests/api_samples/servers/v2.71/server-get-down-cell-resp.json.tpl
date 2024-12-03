@@ -25,7 +25,7 @@
         "status": "UNKNOWN",
         "server_groups": ["%(uuid)s"],
         "tenant_id": "6f70656e737461636b20342065766572",
-        "user_id": "admin",
+        "user_id": "1debf6db-444d-4ac8-9ed8-09f618a7bc01",
         "links": [
             {
                 "href": "%(versioned_compute_endpoint)s/servers/%(uuid)s",

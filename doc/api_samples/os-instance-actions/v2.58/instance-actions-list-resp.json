@@ -8,7 +8,7 @@
             "request_id": "req-1448f44f-490d-42ff-8781-c3181d103a7c",
             "start_time": "2018-04-25T01:26:28.793416",
             "updated_at": "2018-04-25T01:26:29.292649",
-            "user_id": "fake"
+            "user_id": "a16a7b90-3330-4e1e-a91b-b6277482fc7f"
         },
         {
             "action": "create",
@@ -18,7 +18,7 @@
             "request_id": "req-de0561a0-09d9-4902-b1fc-23ee95b14c67",
             "start_time": "2018-04-25T01:26:25.527791",
             "updated_at": "2018-04-25T01:26:28.749039",
-            "user_id": "fake"
+            "user_id": "a16a7b90-3330-4e1e-a91b-b6277482fc7f"
         }
     ]
 }

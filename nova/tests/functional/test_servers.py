@@ -1740,13 +1740,13 @@ class ServersTestV280(integrated_helpers._IntegratedTestBase):
 
         # Get the migration records by admin
         migrations = self.admin_api.get_migrations(
-            user_id=self.admin_api.auth_user)
+            user_id=self.admin_api.user_id)
         self.assertEqual(1, len(migrations))
         self.assertEqual(server_id, migrations[0]['instance_uuid'])
 
         # Get the migration records by non-admin
         migrations = self.admin_api.get_migrations(
-            user_id=self.api.auth_user)
+            user_id=self.api.user_id)
         self.assertEqual([], migrations)
 
     def test_get_migrations_after_live_migrate_server_in_different_project(

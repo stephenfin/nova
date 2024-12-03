@@ -62,12 +62,12 @@ class TestServersPerUserQuota(test.TestCase,
         # The default quota for the project is 10 instances.
         quotas = {'instances': 1}
         self.admin_api.update_quota(
-            quotas, project_id=self.api.project_id, user_id=self.api.auth_user)
+            quotas, project_id=self.api.project_id, user_id=self.api.user_id)
         # Verify that the non-admin user has a quota limit of 1 instance.
-        quotas = self.api.get_quota_detail(user_id=self.api.auth_user)
+        quotas = self.api.get_quota_detail(user_id=self.api.user_id)
         self.assertEqual(1, quotas['instances']['limit'])
         # Verify that the admin user has a quota limit of 10 instances.
-        quotas = self.api.get_quota_detail(user_id=self.admin_api.auth_user)
+        quotas = self.api.get_quota_detail(user_id=self.admin_api.user_id)
         self.assertEqual(10, quotas['instances']['limit'])
         # Boot one instance into the default project as the admin user.
         # This results in usage of 1 instance for the project and 1 instance
