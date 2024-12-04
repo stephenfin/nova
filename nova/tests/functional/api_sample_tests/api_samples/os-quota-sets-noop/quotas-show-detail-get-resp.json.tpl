@@ -15,7 +15,7 @@
             "limit": -1,
             "reserved": -1
         },
-        "id": "fake_tenant",
+        "id": "6f70656e737461636b20342065766572",
         "injected_file_content_bytes": {
             "in_use": -1,
             "limit": -1,

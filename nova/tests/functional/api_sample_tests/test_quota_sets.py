@@ -23,57 +23,61 @@ class QuotaSetsSampleJsonTests(api_sample_base.ApiSampleTestBaseV21):
 
     def test_show_quotas(self):
         # Get api sample to show quotas.
-        response = self._do_get('os-quota-sets/fake_tenant')
+        response = self._do_get(f'os-quota_sets/{self.project_id}')
         self._verify_response('quotas-show-get-resp', {}, response, 200)
 
     def test_show_quotas_defaults(self):
         # Get api sample to show quotas defaults.
-        response = self._do_get('os-quota-sets/fake_tenant/defaults')
+        response = self._do_get(f'os-quota_sets/{self.project_id}/defaults')
         self._verify_response('quotas-show-defaults-get-resp',
                               {}, response, 200)
 
     def test_show_quotas_detail(self):
         # Get api sample to show quotas detail.
-        response = self._do_get('os-quota-sets/fake_tenant/detail')
+        response = self._do_get(f'os-quota_sets/{self.project_id}/detail')
         self._verify_response('quotas-show-detail-get-resp',
                               {}, response, 200)
 
     def test_update_quotas(self):
         # Get api sample to update quotas.
-        response = self._do_put('os-quota-sets/fake_tenant',
-                                'quotas-update-post-req',
-                                {})
+        response = self._do_put(
+            f'os-quota_sets/{self.project_id}',
+            'quotas-update-post-req',
+            {})
         self._verify_response('quotas-update-post-resp', {}, response, 200)
 
     def test_delete_quotas(self):
         # Get api sample to delete quota.
-        response = self._do_delete('os-quota-sets/fake_tenant')
+        response = self._do_delete(f'os-quota_sets/{self.project_id}')
         self.assertEqual(202, response.status_code)
         self.assertEqual('', response.text)
 
     def test_update_quotas_force(self):
         # Get api sample to update quotas.
-        response = self._do_put('os-quota-sets/fake_tenant',
-                                'quotas-update-force-post-req',
-                                {})
+        response = self._do_put(
+            f'os-quota_sets/{self.project_id}',
+            'quotas-update-force-post-req',
+            {})
         return self._verify_response('quotas-update-force-post-resp', {},
                                      response, 200)
 
     def test_show_quotas_for_user(self):
         # Get api sample to show quotas for user.
-        response = self._do_get('os-quota-sets/fake_tenant?user_id=1')
+        response = self._do_get(f'os-quota_sets/{self.project_id}?user_id=1')
         self._verify_response('user-quotas-show-get-resp', {}, response, 200)
 
     def test_delete_quotas_for_user(self):
-        response = self._do_delete('os-quota-sets/fake_tenant?user_id=1')
+        response = self._do_delete(
+            f'os-quota_sets/{self.project_id}?user_id=1')
         self.assertEqual(202, response.status_code)
         self.assertEqual('', response.text)
 
     def test_update_quotas_for_user(self):
         # Get api sample to update quotas for user.
-        response = self._do_put('os-quota-sets/fake_tenant?user_id=1',
-                                'user-quotas-update-post-req',
-                                {})
+        response = self._do_put(
+            f'os-quota_sets/{self.project_id}?user_id=1',
+            'user-quotas-update-post-req',
+            {})
         return self._verify_response('user-quotas-update-post-resp', {},
                                      response, 200)
 

@@ -1,7 +1,7 @@
 {
     "quota_set": {
         "cores": 20,
-        "id": "fake_tenant",
+        "id": "6f70656e737461636b20342065766572",
         "injected_file_content_bytes": 10240,
         "injected_file_path_bytes": 255,
         "injected_files": 5,
