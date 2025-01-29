@@ -391,6 +391,13 @@ project_id = {
     'maxLength': 255,
 }
 
+user_id = {
+    'type': 'string',
+    'pattern': '^[a-zA-Z0-9-]*$',
+    'minLength': 1,
+    'maxLength': 255,
+}
+
 server_id = {
     'type': 'string',
     'format': 'uuid',
