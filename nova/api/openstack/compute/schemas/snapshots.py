@@ -12,34 +12,28 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import copy
+
 from nova.api.validation import parameter_types
 
 create = {
     'type': 'object',
     'properties': {
-        'volume': {
+        'snapshot': {
             'type': 'object',
             'properties': {
-                'volume_type': {'type': 'string'},
-                'metadata': {'type': 'object'},
-                'snapshot_id': {'type': 'string'},
-                'size': {
-                    'type': ['integer', 'string'],
-                    'pattern': '^[0-9]+$',
-                    'minimum': 1
-                },
-                'availability_zone': {'type': 'string'},
+                'volume_id': {'type': 'string'},
+                'force': parameter_types.boolean,
                 'display_name': {'type': 'string'},
                 'display_description': {'type': 'string'},
             },
-            'required': ['size'],
+            'required': ['volume_id'],
             'additionalProperties': False,
         },
     },
-    'required': ['volume'],
+    'required': ['snapshot'],
     'additionalProperties': False,
 }
-
 
 index_query = {
     'type': 'object',
@@ -49,11 +43,21 @@ index_query = {
         'offset': parameter_types.multi_params(
              parameter_types.non_negative_integer)
     },
+    # NOTE(gmann): This is kept True to keep backward compatibility.
+    # As of now Schema validation stripped out the additional parameters and
+    # does not raise 400. In microversion 2.75, we have blocked the additional
+    # parameters.
     'additionalProperties': True
 }
 
+index_query_275 = copy.deepcopy(index_query)
+index_query_275['additionalProperties'] = False
+
+# TODO(stephenfin): It seems we forgot to set additionalProperties to False in
+# v2.75
 detail_query = index_query
 
+# TODO(stephenfin): Remove additionalProperties in a future API version
 show_query = {
     'type': 'object',
     'properties': {},
