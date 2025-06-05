@@ -911,6 +911,23 @@ class ServersController(wsgi.Controller):
 
         return self._add_location(robj)
 
+    @wsgi.response(204)
+    @wsgi.expected_errors((404, 409))
+    @validation.response_body_schema(schema.delete_response)
+    def delete(self, req, id):
+        """Destroys a server."""
+        try:
+            self._delete(req.environ['nova.context'], req, id)
+        except exception.InstanceNotFound:
+            msg = _("Instance could not be found")
+            raise exc.HTTPNotFound(explanation=msg)
+        except (exception.InstanceIsLocked,
+                exception.AllocationDeleteFailed) as e:
+            raise exc.HTTPConflict(explanation=e.format_message())
+        except exception.InstanceInvalidState as state_error:
+            common.raise_http_conflict_for_instance_invalid_state(state_error,
+                    'delete', id)
+
     def _delete(self, context, req, instance_uuid):
         instance = self._get_server(context, req, instance_uuid)
         context.can(server_policies.SERVERS % 'delete',
@@ -1062,7 +1079,6 @@ class ServersController(wsgi.Controller):
     @validation.schema(schema.reboot)
     @validation.response_body_schema(schema.reboot_response)
     def _action_reboot(self, req, id, body):
-
         reboot_type = body['reboot']['type'].upper()
         context = req.environ['nova.context']
         instance = self._get_server(context, req, id)
@@ -1131,23 +1147,6 @@ class ServersController(wsgi.Controller):
             exception.ForbiddenSharesNotSupported,
             exception.ForbiddenWithShare) as e:
             raise exc.HTTPConflict(explanation=e.format_message())
-
-    @wsgi.response(204)
-    @wsgi.expected_errors((404, 409))
-    @validation.response_body_schema(schema.delete_response)
-    def delete(self, req, id):
-        """Destroys a server."""
-        try:
-            self._delete(req.environ['nova.context'], req, id)
-        except exception.InstanceNotFound:
-            msg = _("Instance could not be found")
-            raise exc.HTTPNotFound(explanation=msg)
-        except (exception.InstanceIsLocked,
-                exception.AllocationDeleteFailed) as e:
-            raise exc.HTTPConflict(explanation=e.format_message())
-        except exception.InstanceInvalidState as state_error:
-            common.raise_http_conflict_for_instance_invalid_state(state_error,
-                    'delete', id)
 
     def _image_from_req_data(self, server_dict, create_kwargs):
         """Get image data from the request or raise appropriate
@@ -1374,8 +1373,7 @@ class ServersController(wsgi.Controller):
     @wsgi.action('createImage')
     @validation.schema(schema.create_image, '2.0', '2.0')
     @validation.schema(schema.create_image, '2.1')
-    @validation.response_body_schema(
-        schema.create_image_response, '2.0', '2.44')
+    @validation.response_body_schema(schema.create_image_response, '2.0', '2.44')  # noqa: E501
     @validation.response_body_schema(schema.create_image_response_v245, '2.45')
     def _action_create_image(self, req, id, body):
         """Snapshot a server instance."""
@@ -1486,7 +1484,7 @@ class ServersController(wsgi.Controller):
     @wsgi.action('os-start')
     @validation.schema(schema.start_server)
     @validation.response_body_schema(schema.start_server_response)
-    def _start_server(self, req, id, body):
+    def _action_start_server(self, req, id, body):
         """Start an instance."""
         context = req.environ['nova.context']
         instance = self._get_instance(context, id)
@@ -1506,7 +1504,7 @@ class ServersController(wsgi.Controller):
     @wsgi.action('os-stop')
     @validation.schema(schema.stop_server)
     @validation.response_body_schema(schema.stop_server_response)
-    def _stop_server(self, req, id, body):
+    def _action_stop_server(self, req, id, body):
         """Stop an instance."""
         context = req.environ['nova.context']
         instance = self._get_instance(context, id)
